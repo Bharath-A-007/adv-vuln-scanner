@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-container">
+    <div class="results-header">
+        <div class="header-content">
+            <h1><i class="fas fa-file-alt"></i> Scan Results</h1>
+            <button class="download-btn" onclick="downloadPDF()">
+                <i class="fas fa-download"></i> Download PDF Report
+            </button>
+        </div>
+    </div>
+
+    <div class="results-content">
+        <!-- Scan Overview -->
+        <div class="overview-card">
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <h3>Target URL</h3>
+                    <p id="target-url">Loading...</p>
+                </div>
+                <div class="overview-item">
+                    <h3>Scan Date</h3>
+                    <p id="scan-date">Loading...</p>
+                </div>
+                <div class="overview-item risk-overview">
+                    <h3>Risk Level</h3>
+                    <div class="risk-badge" id="risk-badge">
+                        <span id="risk-level">Loading...</span>
+                    </div>
+                </div>
+                <div class="overview-item">
+                    <h3>Total Findings</h3>
+                    <p id="total-findings">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Meter -->
+        <div class="risk-meter-large">
+            <div class="meter-header">
+                <h3><i class="fas fa-chart-line"></i> Security Risk Assessment</h3>
+            </div>
+            <div class="meter-container">
+                <div class="meter-labels">
+                    <span>Low</span>
+                    <span>Medium</span>
+                    <span>High</span>
+                    <span>Critical</span>
+                </div>
+                <div class="meter-bar-large">
+                    <div class="meter-fill-large" id="risk-meter-fill"></div>
+                </div>
+                <div class="risk-score-large" id="risk-score-large">0/100</div>
+            </div>
+        </div>
+
+        <!-- Findings Summary -->
+        <div class="summary-cards">
+            <div class="summary-card critical">
+                <div class="summary-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 id="critical-count">0</h3>
+                    <p>Critical</p>
+                </div>
+            </div>
+            <div class="summary-card high">
+                <div class="summary-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 id="high-count">0</h3>
+                    <p>High</p>
+                </div>
+            </div>
+            <div class="summary-card medium">
+                <div class="summary-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 id="medium-count">0</h3>
+                    <p>Medium</p>
+                </div>
+            </div>
+            <div class="summary-card low">
+                <div class="summary-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="summary-content">
+                    <h3 id="low-count">0</h3>
+                    <p>Low</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Findings -->
+        <div class="findings-section">
+            <h2><i class="fas fa-bug"></i> Vulnerability Details</h2>
+            
+            <div class="findings-container" id="findings-container">
+                <!-- Findings will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load results from localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const results = JSON.parse(localStorage.getItem('scanResults'));
+    if (results) {
+        displayResults(results);
+    } else {
+        // Try to get from URL parameters or show error
+        console.error('No scan results found');
+    }
+});
+
+function displayResults(results) {
+    // Update overview
+    document.getElementById('target-url').textContent = results.target_url;
+    document.getElementById('scan-date').textContent = new Date(results.scan_date).toLocaleString();
+    document.getElementById('total-findings').textContent = results.findings.length;
+    
+    // Update risk meter
+    updateRiskMeter(results.risk_score);
+    
+    // Update summary cards
+    updateSummaryCards(results.findings);
+    
+    // Display detailed findings
+    displayFindings(results.findings);
+    
+    // Store scan ID for PDF download
+    window.currentScanId = results.scan_id;
+}
+
+function updateRiskMeter(score) {
+    const fill = document.getElementById('risk-meter-fill');
+    const scoreDisplay = document.getElementById('risk-score-large');
+    const riskBadge = document.getElementById('risk-level');
+    
+    fill.style.width = score + '%';
+    scoreDisplay.textContent = score + '/100';
+    
+    let riskLevel = 'Low';
+    let riskClass = 'low';
+    
+    if (score >= 70) {
+        riskLevel = 'Critical';
+        riskClass = 'critical';
+        fill.style.background = '#dc2626';
+    } else if (score >= 50) {
+        riskLevel = 'High';
+        riskClass = 'high';
+        fill.style.background = '#ea580c';
+    } else if (score >= 30) {
+        riskLevel = 'Medium';
+        riskClass = 'medium';
+        fill.style.background = '#d97706';
+    } else {
+        riskLevel = 'Low';
+        riskClass = 'low';
+        fill.style.background = '#059669';
+    }
+    
+    riskBadge.textContent = riskLevel;
+    riskBadge.className = riskClass;
+}
+
+function updateSummaryCards(findings) {
+    const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
+    
+    findings.forEach(finding => {
+        counts[finding.severity] += 1;
+    });
+    
+    document.getElementById('critical-count').textContent = counts.CRITICAL;
+    document.getElementById('high-count').textContent = counts.HIGH;
+    document.getElementById('medium-count').textContent = counts.MEDIUM;
+    document.getElementById('low-count').textContent = counts.LOW;
+}
+
+function displayFindings(findings) {
+    const container = document.getElementById('findings-container');
+    container.innerHTML = '';
+    
+    // Group by severity
+    const bySeverity = { CRITICAL: [], HIGH: [], MEDIUM: [], LOW: [] };
+    findings.forEach(finding => {
+        bySeverity[finding.severity].push(finding);
+    });
+    
+    // Display by severity order
+    ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].forEach(severity => {
+        if (bySeverity[severity].length > 0) {
+            const severitySection = createSeveritySection(severity, bySeverity[severity]);
+            container.appendChild(severitySection);
+        }
+    });
+}
+
+function createSeveritySection(severity, findings) {
+    const section = document.createElement('div');
+    section.className = `severity-section ${severity.toLowerCase()}`;
+    
+    const header = document.createElement('div');
+    header.className = 'severity-header';
+    header.innerHTML = `
+        <h3>
+            <i class="fas fa-${getSeverityIcon(severity)}"></i>
+            ${severity} SEVERITY (${findings.length})
+        </h3>
+    `;
+    
+    const findingsList = document.createElement('div');
+    findingsList.className = 'findings-list';
+    
+    findings.forEach((finding, index) => {
+        const findingCard = document.createElement('div');
+        findingCard.className = 'finding-card';
+        findingCard.innerHTML = `
+            <div class="finding-header">
+                <span class="finding-title">${index + 1}. ${finding.title}</span>
+                <span class="owasp-ref">${finding.owasp_ref}</span>
+            </div>
+            <div class="finding-description">
+                <p>${finding.description}</p>
+            </div>
+        `;
+        findingsList.appendChild(findingCard);
+    });
+    
+    section.appendChild(header);
+    section.appendChild(findingsList);
+    return section;
+}
+
+function getSeverityIcon(severity) {
+    const icons = {
+        'CRITICAL': 'exclamation-triangle',
+        'HIGH': 'exclamation-circle',
+        'MEDIUM': 'info-circle',
+        'LOW': 'check-circle'
+    };
+    return icons[severity] || 'info-circle';
+}
+
+function downloadPDF() {
+    if (window.currentScanId) {
+        window.open(`/download-report?scan_id=${window.currentScanId}`, '_blank');
+    } else {
+        alert('No scan results available for download');
+    }
+}
+</script>
+
+<style>
+/* Add these styles to your existing CSS */
+.results-header {
+    background: white;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.download-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.download-btn:hover {
+    background: var(--primary-dark);
+}
+
+.results-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.overview-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.overview-item h3 {
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.overview-item p {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.risk-badge.critical { background: #fef2f2; color: #dc2626; }
+.risk-badge.high { background: #fff7ed; color: #ea580c; }
+.risk-badge.medium { background: #fffbeb; color: #d97706; }
+.risk-badge.low { background: #f0fdf4; color: #059669; }
+
+/* Add more CSS styles for the results page... */
+</style>
+{% endblock %}
