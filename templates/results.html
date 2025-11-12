@@ -5,9 +5,17 @@
     <div class="results-header">
         <div class="header-content">
             <h1><i class="fas fa-file-alt"></i> Scan Results</h1>
-            <button class="download-btn" onclick="downloadPDF()">
-                <i class="fas fa-download"></i> Download PDF Report
-            </button>
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="rescan()">
+                    <i class="fas fa-sync"></i> Rescan
+                </button>
+                <button class="download-btn" onclick="downloadPDF()">
+                    <i class="fas fa-download"></i> Download PDF Report
+                </button>
+                <button class="btn-secondary" onclick="printResults()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
         </div>
     </div>
 
@@ -16,21 +24,21 @@
         <div class="overview-card">
             <div class="overview-grid">
                 <div class="overview-item">
-                    <h3>Target URL</h3>
+                    <h3><i class="fas fa-globe"></i> Target URL</h3>
                     <p id="target-url">Loading...</p>
                 </div>
                 <div class="overview-item">
-                    <h3>Scan Date</h3>
+                    <h3><i class="fas fa-calendar"></i> Scan Date</h3>
                     <p id="scan-date">Loading...</p>
                 </div>
                 <div class="overview-item risk-overview">
-                    <h3>Risk Level</h3>
+                    <h3><i class="fas fa-chart-line"></i> Risk Level</h3>
                     <div class="risk-badge" id="risk-badge">
                         <span id="risk-level">Loading...</span>
                     </div>
                 </div>
                 <div class="overview-item">
-                    <h3>Total Findings</h3>
+                    <h3><i class="fas fa-bug"></i> Total Findings</h3>
                     <p id="total-findings">0</p>
                 </div>
             </div>
@@ -39,7 +47,7 @@
         <!-- Risk Meter -->
         <div class="risk-meter-large">
             <div class="meter-header">
-                <h3><i class="fas fa-chart-line"></i> Security Risk Assessment</h3>
+                <h3><i class="fas fa-tachometer-alt"></i> Security Risk Assessment</h3>
             </div>
             <div class="meter-container">
                 <div class="meter-labels">
@@ -94,67 +102,22 @@
                 </div>
             </div>
         </div>
-        <div class="findings-container">
-    <!-- Critical Findings -->
-    <div class="severity-section critical">
-        <div class="severity-header">
-            <h3>
-                <i class="fas fa-exclamation-triangle"></i>  <!-- Critical -->
-                CRITICAL SEVERITY (2)
-            </h3>
-        </div>
-        <!-- Vulnerability cards will go here -->
-    </div>
 
-    <!-- High Findings -->
-    <div class="severity-section high">
-        <div class="severity-header">
-            <h3>
-                <i class="fas fa-exclamation-circle"></i>  <!-- High -->
-                HIGH SEVERITY (3)
-            </h3>
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <span>Scan Time: <span id="scan-time">0s</span></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-shield-check"></i>
+                <span>Security Score: <span id="security-score">0%</span></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Report: Ready</span>
+            </div>
         </div>
-    </div>
-
-    <!-- Medium Findings -->
-    <div class="severity-section medium">
-        <div class="severity-header">
-            <h3>
-                <i class="fas fa-info-circle"></i>  <!-- Medium -->
-                MEDIUM SEVERITY (4)
-            </h3>
-        </div>
-    </div>
-
-    <!-- Low Findings -->
-    <div class="severity-section low">
-        <div class="severity-header">
-            <h3>
-                <i class="fas fa-check-circle"></i>  <!-- Low -->
-                LOW SEVERITY (1)
-            </h3>
-        </div>
-    </div>
-</div>
-
-<!-- Risk Assessment Section -->
-<div class="risk-assessment">
-    <h3><i class="fas fa-chart-line"></i> Risk Assessment</h3>  <!-- Risk Assessment -->
-    <div class="risk-meters">
-        <div class="risk-meter">
-            <i class="fas fa-tachometer-alt"></i>  <!-- Risk Meter -->
-            <span>Overall Risk: 45/100</span>
-        </div>
-        <div class="risk-meter">
-            <i class="fas fa-chart-pie"></i>  <!-- Risk Analysis -->
-            <span>Vulnerability Distribution</span>
-        </div>
-        <div class="risk-meter">
-            <i class="fas fa-chart-bar"></i>  <!-- Statistics -->
-            <span>Security Metrics</span>
-        </div>
-    </div>
-</div>
 
         <!-- Detailed Findings -->
         <div class="findings-section">
@@ -174,8 +137,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (results) {
         displayResults(results);
     } else {
-        // Try to get from URL parameters or show error
-        console.error('No scan results found');
+        document.getElementById('findings-container').innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>No scan results found</h3>
+                <p>Please run a scan first from the home page.</p>
+                <a href="/" class="btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Scanner
+                </a>
+            </div>
+        `;
     }
 });
 
@@ -248,154 +219,17 @@ function displayFindings(findings) {
     const container = document.getElementById('findings-container');
     container.innerHTML = '';
     
-    // Group by severity
-    const bySeverity = { CRITICAL: [], HIGH: [], MEDIUM: [], LOW: [] };
-    findings.forEach(finding => {
-        bySeverity[finding.severity].push(finding);
-    });
-    
-    // Display by severity order
-    ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].forEach(severity => {
-        if (bySeverity[severity].length > 0) {
-            const severitySection = createSeveritySection(severity, bySeverity[severity]);
-            container.appendChild(severitySection);
-        }
-    });
-}
-
-function createSeveritySection(severity, findings) {
-    const section = document.createElement('div');
-    section.className = `severity-section ${severity.toLowerCase()}`;
-    
-    const header = document.createElement('div');
-    header.className = 'severity-header';
-    header.innerHTML = `
-        <h3>
-            <i class="fas fa-${getSeverityIcon(severity)}"></i>
-            ${severity} SEVERITY (${findings.length})
-        </h3>
-    `;
-    
-    const findingsList = document.createElement('div');
-    findingsList.className = 'findings-list';
-    
-    findings.forEach((finding, index) => {
-        const findingCard = document.createElement('div');
-        findingCard.className = 'finding-card';
-        findingCard.innerHTML = `
-            <div class="finding-header">
-                <span class="finding-title">${index + 1}. ${finding.title}</span>
-                <span class="owasp-ref">${finding.owasp_ref}</span>
-            </div>
-            <div class="finding-description">
-                <p>${finding.description}</p>
+    if (findings.length === 0) {
+        container.innerHTML = `
+            <div class="no-vulnerabilities">
+                <i class="fas fa-check-circle"></i>
+                <h3>No Vulnerabilities Found</h3>
+                <p>Great! The website appears to be secure.</p>
             </div>
         `;
-        findingsList.appendChild(findingCard);
-    });
-    
-    section.appendChild(header);
-    section.appendChild(findingsList);
-    return section;
-}
-
-function getSeverityIcon(severity) {
-    const icons = {
-        'CRITICAL': 'exclamation-triangle',
-        'HIGH': 'exclamation-circle',
-        'MEDIUM': 'info-circle',
-        'LOW': 'check-circle'
-    };
-    return icons[severity] || 'info-circle';
-}
-
-function downloadPDF() {
-    if (window.currentScanId) {
-        window.open(`/download-report?scan_id=${window.currentScanId}`, '_blank');
-    } else {
-        alert('No scan results available for download');
+        return;
     }
-}
-</script>
-
-<style>
-/* Add these styles to your existing CSS */
-.results-header {
-    background: white;
-    padding: 2rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 2rem;
-}
-
-.header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.download-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.download-btn:hover {
-    background: var(--primary-dark);
-}
-
-.results-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.overview-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
-}
-
-.overview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-}
-
-.overview-item h3 {
-    color: var(--secondary);
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
-}
-
-.overview-item p {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.risk-badge {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.875rem;
-}
-
-.risk-badge.critical { background: #fef2f2; color: #dc2626; }
-.risk-badge.high { background: #fff7ed; color: #ea580c; }
-.risk-badge.medium { background: #fffbeb; color: #d97706; }
-.risk-badge.low { background: #f0fdf4; color: #059669; }
-
-/* Add more CSS styles for the results page... */
-</style>
-{% endblock %}
+    
+    // Group by severity
+    const bySeverity = { CRITICAL: [], HIGH: [], MEDIUM: [], LOW: [] };
+    findings
