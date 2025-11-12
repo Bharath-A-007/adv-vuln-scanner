@@ -1,0 +1,147 @@
+<div class="severity-meter-component">
+    <div class="meter-header">
+        <h4><i class="fas fa-chart-line"></i> Security Risk Assessment</h4>
+    </div>
+    
+    <div class="risk-meter">
+        <div class="meter-labels">
+            <span class="label-low">Low</span>
+            <span class="label-medium">Medium</span>
+            <span class="label-high">High</span>
+            <span class="label-critical">Critical</span>
+        </div>
+        
+        <div class="meter-bar">
+            <div class="meter-fill" id="risk-fill-{{ id }}" data-risk="0"></div>
+        </div>
+        
+        <div class="risk-score" id="risk-score-{{ id }}">0/100</div>
+    </div>
+    
+    <div class="risk-breakdown">
+        <div class="risk-item critical">
+            <span class="risk-dot"></span>
+            <span>Critical: <strong id="critical-count-{{ id }}">0</strong></span>
+        </div>
+        <div class="risk-item high">
+            <span class="risk-dot"></span>
+            <span>High: <strong id="high-count-{{ id }}">0</strong></span>
+        </div>
+        <div class="risk-item medium">
+            <span class="risk-dot"></span>
+            <span>Medium: <strong id="medium-count-{{ id }}">0</strong></span>
+        </div>
+        <div class="risk-item low">
+            <span class="risk-dot"></span>
+            <span>Low: <strong id="low-count-{{ id }}">0</strong></span>
+        </div>
+    </div>
+</div>
+
+<style>
+.severity-meter-component {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.meter-header h4 {
+    margin: 0 0 1rem 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.risk-meter {
+    margin-bottom: 1.5rem;
+}
+
+.meter-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.label-low { color: #059669; }
+.label-medium { color: #d97706; }
+.label-high { color: #ea580c; }
+.label-critical { color: #dc2626; }
+
+.meter-bar {
+    height: 20px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.meter-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: #059669;
+    transition: all 0.5s ease;
+    width: 0%;
+}
+
+.risk-score {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.risk-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.risk-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.risk-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.risk-item.critical .risk-dot { background: #dc2626; }
+.risk-item.high .risk-dot { background: #ea580c; }
+.risk-item.medium .risk-dot { background: #d97706; }
+.risk-item.low .risk-dot { background: #059669; }
+</style>
+
+<script>
+function updateSeverityMeter(meterId, riskScore, severityCounts) {
+    const fill = document.getElementById(`risk-fill-${meterId}`);
+    const scoreDisplay = document.getElementById(`risk-score-${meterId}`);
+    
+    // Update meter fill
+    fill.style.width = `${riskScore}%`;
+    scoreDisplay.textContent = `${riskScore}/100`;
+    
+    // Update color based on risk
+    if (riskScore >= 70) {
+        fill.style.background = '#dc2626';
+    } else if (riskScore >= 50) {
+        fill.style.background = '#ea580c';
+    } else if (riskScore >= 30) {
+        fill.style.background = '#d97706';
+    } else {
+        fill.style.background = '#059669';
+    }
+    
+    // Update counts
+    document.getElementById(`critical-count-${meterId}`).textContent = severityCounts.CRITICAL || 0;
+    document.getElementById(`high-count-${meterId}`).textContent = severityCounts.HIGH || 0;
+    document.getElementById(`medium-count-${meterId}`).textContent = severityCounts.MEDIUM || 0;
+    document.getElementById(`low-count-${meterId}`).textContent = severityCounts.LOW || 0;
+}
+</script>
