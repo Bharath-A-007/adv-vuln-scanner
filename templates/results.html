@@ -232,4 +232,191 @@ function displayFindings(findings) {
     
     // Group by severity
     const bySeverity = { CRITICAL: [], HIGH: [], MEDIUM: [], LOW: [] };
-    findings
+    findings.forEach(finding => {
+        bySeverity[finding.severity].push(finding);
+    });
+    
+    // Display by severity order
+    ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].forEach(severity => {
+        if (bySeverity[severity].length > 0) {
+            const severitySection = createSeveritySection(severity, bySeverity[severity]);
+            container.appendChild(severitySection);
+        }
+    });
+}
+
+function createSeveritySection(severity, findings) {
+    const section = document.createElement('div');
+    section.className = `severity-section ${severity.toLowerCase()}`;
+    
+    const header = document.createElement('div');
+    header.className = 'severity-header';
+    header.innerHTML = `
+        <h3>
+            <i class="fas fa-${getSeverityIcon(severity)}"></i>
+            ${severity} SEVERITY (${findings.length})
+        </h3>
+    `;
+    
+    const findingsList = document.createElement('div');
+    findingsList.className = 'findings-list';
+    
+    findings.forEach((finding, index) => {
+        const findingCard = document.createElement('div');
+        findingCard.className = 'finding-card';
+        findingCard.innerHTML = `
+            <div class="finding-header">
+                <span class="finding-title">${index + 1}. ${finding.title}</span>
+                <span class="owasp-ref">${finding.owasp_ref}</span>
+            </div>
+            <div class="finding-description">
+                <p>${finding.description}</p>
+            </div>
+            ${finding.evidence ? `
+            <div class="finding-evidence">
+                <strong><i class="fas fa-search"></i> Evidence:</strong>
+                <code>${finding.evidence}</code>
+            </div>
+            ` : ''}
+        `;
+        findingsList.appendChild(findingCard);
+    });
+    
+    section.appendChild(header);
+    section.appendChild(findingsList);
+    return section;
+}
+
+function getSeverityIcon(severity) {
+    const icons = {
+        'CRITICAL': 'exclamation-triangle',
+        'HIGH': 'exclamation-circle',
+        'MEDIUM': 'info-circle',
+        'LOW': 'check-circle'
+    };
+    return icons[severity] || 'info-circle';
+}
+
+function downloadPDF() {
+    if (window.currentScanId) {
+        window.open(`/download-report?scan_id=${window.currentScanId}`, '_blank');
+    } else {
+        alert('No scan results available for download');
+    }
+}
+
+function rescan() {
+    window.location.href = '/';
+}
+
+function printResults() {
+    window.print();
+}
+</script>
+
+<style>
+.results-header {
+    background: white;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.download-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.download-btn:hover {
+    background: var(--primary-dark);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.results-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.overview-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.overview-item h3 {
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.overview-item p {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.risk-badge.critical { background: #fef2f2; color: #dc2626; }
+.risk-badge.high { background: #fff7ed; color: #ea580c; }
+.risk-badge.medium { background: #fffbeb; color: #d97706; }
+.risk-badge.low { background: #f0fdf4; color: #059669; }
+
+/* Add more CSS styles for the results page as needed */
+</style>
+{% endblock %}
