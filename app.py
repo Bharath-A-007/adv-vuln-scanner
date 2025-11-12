@@ -1,13 +1,12 @@
-afrom flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify
 import os
-import json
 from scanner.core import AdvancedVulnerabilityScanner
 from report_generator import PDFReportGenerator
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['SECRET_KEY'] = 'web-doc-secret-key-2024'
 
-# Store scan results temporarily (in production, use database)
+# Store scan results temporarily
 scan_results_store = {}
 
 @app.route('/')
@@ -41,13 +40,7 @@ def scan_website():
 
 @app.route('/results')
 def show_results():
-    scan_data = request.args.get('data')
-    if scan_data:
-        results = json.loads(scan_data)
-    else:
-        # Get from localStorage via JavaScript
-        return render_template('results.html')
-    return render_template('results.html', results=results)
+    return render_template('results.html')
 
 @app.route('/download-report')
 def download_report():
@@ -65,7 +58,7 @@ def download_report():
     return send_file(
         pdf_path,
         as_attachment=True,
-        download_name=f'security_scan_report_{results["target_url"].replace("://", "_")}.pdf',
+        download_name=f'web_doc_security_report_{results["target_url"].replace("://", "_")}.pdf',
         mimetype='application/pdf'
     )
 
