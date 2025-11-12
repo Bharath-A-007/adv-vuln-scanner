@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <i class="fas fa-shield-alt"></i>
+                CyberScan Pro
+            </h1>
+            <p class="hero-subtitle">Professional Website Vulnerability Scanner</p>
+            <p class="hero-description">
+                Comprehensive security assessment covering OWASP Top 10 2021 & 2025 vulnerabilities. 
+                Enterprise-grade scanning made accessible.
+            </p>
+        </div>
+        
+        <div class="scan-container">
+            <div class="scan-card">
+                <h3><i class="fas fa-search"></i> Security Assessment</h3>
+                
+                <div class="url-input-group">
+                    <input type="url" id="target-url" class="url-input" 
+                           placeholder="https://example.com" required>
+                    <button class="scan-btn" onclick="startScan()">
+                        <i class="fas fa-play"></i> Start Scan
+                    </button>
+                </div>
+
+                <div class="scan-options">
+                    <div class="option-group">
+                        <label class="option-label">
+                            <input type="radio" name="scan-type" value="quick" checked>
+                            <span class="option-text">
+                                <i class="fas fa-bolt"></i>
+                                Quick Scan
+                            </span>
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="scan-type" value="comprehensive">
+                            <span class="option-text">
+                                <i class="fas fa-search-plus"></i>
+                                Deep Scan
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="risk-meter-container">
+                    <div class="meter-header">
+                        <h4><i class="fas fa-chart-line"></i> Risk Assessment</h4>
+                    </div>
+                    <div class="risk-meter">
+                        <div class="meter-scale">
+                            <span class="scale-label low">Low</span>
+                            <span class="scale-label medium">Medium</span>
+                            <span class="scale-label high">High</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div class="meter-fill" id="risk-fill" data-risk="0"></div>
+                        </div>
+                        <div class="risk-score" id="risk-score">0/100</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>Scanning Website</h3>
+            <p>Analyzing security vulnerabilities...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <h2>Comprehensive Vulnerability Coverage</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-lock"></i>
+                <h3>OWASP Top 10 2021</h3>
+                <ul>
+                    <li>Broken Access Control</li>
+                    <li>Cryptographic Failures</li>
+                    <li>Injection Attacks</li>
+                    <li>Insecure Design</li>
+                    <li>Security Misconfiguration</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>OWASP Top 10 2025</h3>
+                <ul>
+                    <li>Supply Chain Security</li>
+                    <li>Authentication Failures</li>
+                    <li>Integrity Failures</li>
+                    <li>Logging & Monitoring</li>
+                    <li>Exception Handling</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Risk Analysis</h3>
+                <ul>
+                    <li>Real-time Risk Scoring</li>
+                    <li>Severity Classification</li>
+                    <li>Remediation Guidance</li>
+                    <li>Executive Reports</li>
+                    <li>Trend Analysis</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+function startScan() {
+    const url = document.getElementById('target-url').value;
+    const scanType = document.querySelector('input[name="scan-type"]:checked').value;
+    
+    if (!url) {
+        alert('Please enter a target URL');
+        return;
+    }
+
+    // Show loading
+    document.getElementById('loading').style.display = 'flex';
+    
+    // Start scan
+    fetch('/scan', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: url, scan_type: scanType})
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update risk meter
+        updateRiskMeter(data.risk_score);
+        
+        // Store results and redirect
+        localStorage.setItem('scanResults', JSON.stringify(data));
+        window.location.href = '/results';
+    })
+    .catch(error => {
+        console.error('Scan failed:', error);
+        alert('Scan failed: ' + error.message);
+    })
+    .finally(() => {
+        document.getElementById('loading').style.display = 'none';
+    });
+}
+
+function updateRiskMeter(score) {
+    const fill = document.getElementById('risk-fill');
+    const scoreDisplay = document.getElementById('risk-score');
+    
+    fill.style.width = score + '%';
+    fill.setAttribute('data-risk', score);
+    scoreDisplay.textContent = score + '/100';
+    
+    // Update color based on risk
+    if (score >= 70) {
+        fill.style.background = '#e74c3c'; // Red
+    } else if (score >= 40) {
+        fill.style.background = '#f39c12'; // Orange
+    } else {
+        fill.style.background = '#2ecc71'; // Green
+    }
+}
+</script>
+{% endblock %}
