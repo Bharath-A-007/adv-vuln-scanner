@@ -16,6 +16,7 @@
             </p>
         </div>
         
+        
         <div class="scan-container">
             <div class="scan-card">
                 <h3><i class="fas fa-search"></i> Security Assessment</h3>
@@ -163,6 +164,57 @@
             </div>
         </div>
     </section>
+</div>
+<div class="scan-card">
+    <h3><i class="fas fa-search"></i> Security Assessment</h3>  <!-- Security Assessment -->
+    
+    <div class="url-input-group">
+        <div class="input-icon">
+            <i class="fas fa-globe"></i>  <!-- Globe icon for URL -->
+            <input type="url" id="target-url" class="url-input" 
+                   placeholder="https://example.com" required>
+        </div>
+        <button class="scan-btn" onclick="startScan()">
+            <i class="fas fa-play"></i> Start Scan  <!-- Start Scan -->
+        </button>
+    </div>
+
+    <div class="scan-options">
+        <div class="option-group">
+            <label class="option-label">
+                <input type="radio" name="scan-type" value="quick" checked>
+                <span class="option-text">
+                    <i class="fas fa-bolt"></i>  <!-- Quick Scan -->
+                    Quick Scan
+                    <small>Basic security check</small>
+                </span>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="scan-type" value="comprehensive">
+                <span class="option-text">
+                    <i class="fas fa-search-plus"></i>  <!-- Deep Scan -->
+                    Deep Scan
+                    <small>Full OWASP analysis</small>
+                </span>
+            </label>
+        </div>
+    </div>
+</div>
+
+<!-- Action buttons in results section -->
+<div class="action-buttons">
+    <button class="btn-secondary" onclick="rescan()">
+        <i class="fas fa-sync"></i> Rescan  <!-- Rescan -->
+    </button>
+    <button class="btn-primary" onclick="downloadPDF()">
+        <i class="fas fa-download"></i> Download PDF  <!-- Download PDF -->
+    </button>
+    <button class="btn-secondary" onclick="shareReport()">
+        <i class="fas fa-share"></i> Share Report  <!-- Share -->
+    </button>
+    <button class="btn-secondary" onclick="printResults()">
+        <i class="fas fa-print"></i> Print  <!-- Print -->
+    </button>
 </div>
 
 <script>
