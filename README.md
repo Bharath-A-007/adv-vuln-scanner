@@ -1,27 +1,27 @@
 # adv-vuln-scanner
 # 🔍 Web Doc - Website Vulnerability Scanner
 
-A professional-grade web vulnerability scanner covering OWASP Top 10 2021 & 2025 vulnerabilities with comprehensive reporting and risk assessment.
+A professional website vulnerability scanner built with Python Flask that covers OWASP Top 10 2021 & 2025 vulnerabilities.
 
 ## 🚀 Features
 
-- **OWASP Top 10 2021 & 2025 Coverage** - Complete vulnerability assessment
-- **Real-time Risk Scoring** - Dynamic risk meter with severity classification
+- **Comprehensive OWASP Coverage** - Full Top 10 2021 & 2025 vulnerability checks
+- **Real-time Risk Assessment** - Dynamic risk scoring and visualization
 - **Professional PDF Reports** - Downloadable security audit reports
-- **Modern Web Interface** - Responsive design with intuitive dashboard
-- **Comprehensive Scanning** - 50+ vulnerability checks
+- **Modern UI** - Clean, responsive interface with intuitive icons
+- **Quick & Deep Scans** - Choose between rapid or comprehensive scanning
 
-## 🛠️ Quick Start
+## 🛠️ Installation
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/your-username/web-doc-scanner.git
-cd web-doc-scanner
+# Clone the repository
+git clone https://github.com/your-username/web-doc.git
+cd web-doc
 
-# 2. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Run application
+# Run the application
 python app.py
 
-# 4. Open http://localhost:5000
+# Open http://localhost:5000 in your browser
