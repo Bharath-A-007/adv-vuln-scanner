@@ -1,3 +1,5 @@
+[file name]: report_generator.py
+[file content begin]
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -13,13 +15,19 @@ class PDFReportGenerator:
         self._create_custom_styles()
     
     def _create_custom_styles(self):
+        # Pink theme colors
+        self.pink_primary = colors.HexColor('#f61a91')
+        self.pink_dark = colors.HexColor('#c41474')
+        self.pink_light = colors.HexColor('#fce4f1')
+        self.pink_lighter = colors.HexColor('#fef7fb')
+        
         # Title style
         self.title_style = ParagraphStyle(
             'CustomTitle',
             parent=self.styles['Heading1'],
             fontSize=18,
             spaceAfter=30,
-            textColor=colors.HexColor('#2563eb'),
+            textColor=self.pink_primary,
             alignment=1
         )
         
@@ -29,7 +37,7 @@ class PDFReportGenerator:
             parent=self.styles['Heading2'],
             fontSize=14,
             spaceAfter=12,
-            textColor=colors.HexColor('#1e293b')
+            textColor=colors.HexColor('#2d3748')
         )
         
         self.heading2_style = ParagraphStyle(
@@ -37,7 +45,7 @@ class PDFReportGenerator:
             parent=self.styles['Heading3'],
             fontSize=12,
             spaceAfter=8,
-            textColor=colors.HexColor('#374151')
+            textColor=colors.HexColor('#4a5568')
         )
         
         # Severity styles
@@ -132,7 +140,7 @@ class PDFReportGenerator:
         
         scan_table = Table(scan_data, colWidths=[2*inch, 4*inch])
         scan_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f8fafc')),
+            ('BACKGROUND', (0, 0), (0, -1), self.pink_lighter),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#374151')),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
@@ -171,7 +179,7 @@ class PDFReportGenerator:
         
         summary_table = Table(summary_data, colWidths=[1.5*inch, 1*inch, 1.5*inch])
         summary_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
+            ('BACKGROUND', (0, 0), (-1, 0), self.pink_primary),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -180,7 +188,7 @@ class PDFReportGenerator:
             ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#fff7ed')),  # High row
             ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor('#fffbeb')),  # Medium row
             ('BACKGROUND', (0, 4), (-1, 4), colors.HexColor('#f0fdf4')),  # Low row
-            ('BACKGROUND', (0, 5), (-1, 5), colors.HexColor('#f8fafc')),  # Total row
+            ('BACKGROUND', (0, 5), (-1, 5), self.pink_lighter),  # Total row
             ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e2e8f0'))
         ]))
         elements.append(summary_table)
@@ -235,11 +243,11 @@ class PDFReportGenerator:
         
         remediation_table = Table(remediation_advice, colWidths=[3.5*inch, 2.5*inch])
         remediation_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc2626')),
+            ('BACKGROUND', (0, 0), (-1, 0), self.pink_primary),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#ea580c')),
             ('TEXTCOLOR', (0, 1), (-1, 1), colors.white),
-            ('BACKGROUND', (0, 2), (-1, 3), colors.HexColor('#f8fafc')),
+            ('BACKGROUND', (0, 2), (-1, 3), self.pink_lighter),
             ('TEXTCOLOR', (0, 2), (-1, -1), colors.HexColor('#374151')),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -256,3 +264,4 @@ class PDFReportGenerator:
         for finding in findings:
             counts[finding['severity']] += 1
         return counts
+[file content end]
