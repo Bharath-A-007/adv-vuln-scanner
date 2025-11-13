@@ -1,6 +1,6 @@
 [file name]: static/css/results.css
 [file content begin]
-/* Results Page Styles - Magenta Silk Theme */
+/* Results Page Styles - Pink Theme */
 .results-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -13,12 +13,12 @@
     background: var(--white);
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(216, 27, 96, 0.1);
-    border: 1px solid var(--silk-light);
+    box-shadow: 0 10px 30px rgba(246, 26, 145, 0.15);
+    border: 1px solid var(--pink-light);
 }
 
 .results-header h1 {
-    color: var(--primary-magenta);
+    color: var(--primary-pink);
     font-size: 2.5rem;
     margin-bottom: 1rem;
 }
@@ -53,6 +53,7 @@
     font-weight: bold;
     color: var(--white);
     margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%);
 }
 
 .score-circle.critical { background: var(--critical); }
@@ -63,7 +64,7 @@
 .risk-level {
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--primary-magenta);
+    color: var(--primary-pink);
 }
 
 /* Severity Breakdown */
@@ -92,28 +93,30 @@
     background: var(--white);
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(216, 27, 96, 0.1);
+    box-shadow: 0 10px 30px rgba(246, 26, 145, 0.15);
     margin-bottom: 2rem;
-    border: 1px solid var(--silk-light);
+    border: 1px solid var(--pink-light);
 }
 
 .findings-header {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .findings-header h2 {
-    color: var(--primary-magenta);
+    color: var(--primary-pink);
     font-size: 1.8rem;
 }
 
 .download-btn {
-    background: linear-gradient(135deg, var(--primary-magenta) 0%, var(--primary-magenta-dark) 100%);
+    background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-dark) 100%);
     color: var(--white);
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 10px;
     cursor: pointer;
     text-decoration: none;
@@ -121,11 +124,12 @@
     align-items: center;
     gap: 8px;
     transition: all 0.3s ease;
+    font-weight: 600;
 }
 
 .download-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(216, 27, 96, 0.3);
+    box-shadow: 0 5px 15px rgba(246, 26, 145, 0.3);
 }
 
 .finding-item {
@@ -133,13 +137,13 @@
     margin-bottom: 1rem;
     border-radius: 15px;
     border-left: 5px solid;
-    background: var(--silk-lighter);
+    background: var(--pink-lighter);
     transition: all 0.3s ease;
 }
 
 .finding-item:hover {
     transform: translateX(5px);
-    background: var(--silk-light);
+    background: var(--pink-light);
 }
 
 .finding-item.critical { border-left-color: var(--critical); }
@@ -149,9 +153,11 @@
 
 .finding-header {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .finding-title {
@@ -161,21 +167,22 @@
 }
 
 .finding-severity {
-    padding: 5px 12px;
+    padding: 6px 15px;
     border-radius: 20px;
     color: var(--white);
     font-size: 0.9rem;
     font-weight: bold;
 }
 
-.severity-critical { background: var(--critical); }
-.severity-high { background: var(--high); }
-.severity-medium { background: var(--medium); }
-.severity-low { background: var(--low); }
+.finding-severity.critical { background: var(--critical); }
+.finding-severity.high { background: var(--high); }
+.finding-severity.medium { background: var(--medium); }
+.finding-severity.low { background: var(--low); }
 
 .finding-description {
     color: var(--text-medium);
     line-height: 1.6;
+    margin-bottom: 0.5rem;
 }
 
 .finding-owasp {
@@ -194,9 +201,9 @@
 }
 
 .btn-secondary {
-    background: var(--silk-light);
-    color: var(--primary-magenta);
-    border: 2px solid var(--primary-magenta);
+    background: var(--pink-lighter);
+    color: var(--primary-pink);
+    border: 2px solid var(--primary-pink);
     padding: 12px 30px;
     border-radius: 10px;
     cursor: pointer;
@@ -209,8 +216,29 @@
 }
 
 .btn-secondary:hover {
-    background: var(--primary-magenta);
+    background: var(--primary-pink);
     color: var(--white);
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 3rem;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--pink-light);
+    border-top: 4px solid var(--primary-pink);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Responsive Design */
@@ -234,6 +262,15 @@
     .btn-secondary {
         width: 100%;
         justify-content: center;
+    }
+    
+    .finding-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .finding-severity {
+        align-self: flex-start;
     }
 }
 [file content end]
